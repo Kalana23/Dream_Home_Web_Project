@@ -11,203 +11,24 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
     
-    <style>
-        body { font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        
-        .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
-        .glass-nav { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
-        
-        .card-3d { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); transform-style: preserve-3d; transition: all 0.5s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
-        .card-3d:hover { transform: translateY(-10px) rotateX(2deg) rotateY(2deg); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
 
-        .btn-3d { transform-style: preserve-3d; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-        .btn-3d:hover { transform: translateY(-2px) translateZ(5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-
-        .video-bg { 
-            position: fixed; 
-            right: 0; 
-            bottom: 0; 
-            min-width: 100%; 
-            min-height: 100%; 
-            z-index: -1; 
-            object-fit: cover;
-            object-position: center center; 
-        }
-        
-        .section-padding { padding: 5rem 1rem; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
-    </style>
+    <link href="style.css" rel="stylesheet">
 </head>
 <body class="bg-slate-900 text-slate-100">
 
 <div id="root"></div>
 
+<script type="text/babel" src="shared.js"></script>
 <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
-
-    // --- ICONS ---
-    const Icon = ({ path }) => <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{path}</svg>;
-    
-    const icons = {
-        home: <><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></>,
-        user: <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
-        briefcase: <><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></>,
-        logout: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></>,
-        msg: <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>,
-        close: <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>,
-        send: <><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></>,
-        tool: <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>,
-        pen: <><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></>,
-        phone: <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>,
-        search: <><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></>,
-        edit: <><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
-        upload: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></>,
-        // NEW ICONS FOR PASSWORD
-        eye: <><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></>,
-        eyeOff: <><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></>
-    };
-
-    const API_URL = ".";
-    const VIDEO_URL = "my_video.mp4"; 
-
-    // --- PROFESSIONS LIST ---
-    const professionOptions = [
-        "Civil Engineer",
-        "Architect",
-        "Structural Engineer",
-        "Electrical Engineer",
-        "Mechanical Engineer",
-        "Quantity Surveyor",
-        "Interior Designer",
-        "Landscape Architect",
-        "Other"
-    ];
-
-    const Button = ({ children, onClick, type = 'button', variant = 'primary', className = '' }) => {
-        const base = "btn-3d px-6 py-2 rounded-full font-bold flex items-center justify-center gap-2 text-sm cursor-pointer";
-        const variants = {
-            primary: "bg-blue-600/80 backdrop-blur-md text-white border border-blue-400/30",
-            secondary: "bg-white/10 backdrop-blur-md text-slate-100 border border-white/20",
-            danger: "bg-red-500/80 backdrop-blur-md text-white border border-red-400/30",
-            transparent: "bg-white/5 backdrop-blur-sm text-white border border-white/10"
-        };
-        return <button onClick={onClick} type={type} className={`${base} ${variants[variant]} ${className}`}>{children}</button>;
-    };
-
-    const ChatbotWidget = ({ engineerName, rules, onClose }) => {
-        const [messages, setMessages] = useState([{ sender: 'bot', text: `Hi! I'm the AI assistant for ${engineerName}.` }]);
-        const [input, setInput] = useState('');
-        const bottomRef = useRef(null);
-        useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-        const handleSend = () => {
-            if (!input.trim()) return;
-            setMessages(prev => [...prev, { sender: 'user', text: input }]);
-            const lowerInput = input.toLowerCase();
-            setInput('');
-            setTimeout(() => {
-                let reply = "Please contact the engineer directly.";
-                const foundRule = rules.find(r => lowerInput.includes(r.keyword.toLowerCase()));
-                if (foundRule) reply = foundRule.answer;
-                else if (lowerInput.match(/hi|hello/)) reply = "Hello! How can I help you?";
-                setMessages(prev => [...prev, { sender: 'bot', text: reply }]);
-            }, 600);
-        };
-        return (
-            <div className="fixed bottom-4 right-4 w-80 md:w-96 h-[450px] glass rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-700 animate-fade-in-up" style={{ zIndex: 99999 }}>
-                <div className="bg-blue-600 p-4 text-white flex justify-between items-center shadow-md">
-                    <span className="font-bold text-sm">Assistant</span>
-                    <button onClick={onClose}><Icon path={icons.close}/></button>
-                </div>
-                <div className="flex-1 p-4 overflow-y-auto bg-slate-900/50 space-y-3">
-                    {messages.map((m, i) => (
-                        <div key={i} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${m.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-100 border border-slate-700 shadow-sm rounded-bl-none'}`}>{m.text}</div>
-                        </div>
-                    ))}
-                    <div ref={bottomRef}></div>
-                </div>
-                <div className="p-3 bg-slate-800/50 border-t border-slate-700 flex gap-2">
-                    <input className="flex-1 bg-slate-700 rounded-full px-4 py-2 text-sm outline-none text-slate-100 placeholder-slate-400" placeholder="Type..." value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSend()}/>
-                    <button onClick={handleSend} className="text-blue-400"><Icon path={icons.send}/></button>
-                </div>
-            </div>
-        );
-    };
+    const { useState, useEffect } = window;
+    const Icon = window.Icon;
+    const icons = window.icons;
+    const Button = window.Button;
+    const api = window.api;
+    const VIDEO_URL = window.VIDEO_URL;
 
     function App() {
-        const [view, setView] = useState('home');
-        const [user, setUser] = useState(null);
-        const [engineers, setEngineers] = useState([]);
-        const [selectedEng, setSelectedEng] = useState(null);
-        const [myProjects, setMyProjects] = useState([]);
         const [homeProjects, setHomeProjects] = useState([]);
-
-        // Form Data State
-        const [formData, setFormData] = useState({ email: '', password: '', name: '', phone: '', address: '', type: 'customer', specialization: '' });
-        const [isOtherProfession, setIsOtherProfession] = useState(false);
-        
-        // --- NEW STATE: Show Password Toggle ---
-        const [showPassword, setShowPassword] = useState(false);
-
-        const [projForm, setProjForm] = useState({ title: '', description: '' });
-        const [projFile, setProjFile] = useState(null);
-        const [profileForm, setProfileForm] = useState({ name: '', phone: '', specialization: '', price: '' });
-        
-        const [showChat, setShowChat] = useState(false);
-        const [chatRules, setChatRules] = useState([]);
-        const [newRule, setNewRule] = useState({ keyword: '', answer: '' });
-
-        const [searchName, setSearchName] = useState('');
-        const [searchLocation, setSearchLocation] = useState('');
-        const [searchSpec, setSearchSpec] = useState('');
-        const [searchPrice, setSearchPrice] = useState('');
-
-        const dummyProjects = [
-            { title: "Modern Villa", description: "A beautiful modern villa.", image_url: "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&q=80&w=1000" },
-            { title: "Eco Home", description: "Sustainable eco-friendly home.", image_url: "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&q=80&w=1000" },
-            { title: "Urban Apartment", description: "Luxury urban apartment.", image_url: "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&q=80&w=1000" }
-        ];
-
-        const dummyEngineers = [
-            { id: 1, name: "Alice Smith", email: "alice@example.com", phone: "0771111111", address: "Colombo", specialization: "Architect", price: "5000", projects: dummyProjects },
-            { id: 2, name: "Bob Jones", email: "bob@example.com", phone: "0772222222", address: "Kandy", specialization: "Civil Engineer", price: "4000", projects: dummyProjects },
-            { id: 3, name: "Charlie Brown", email: "charlie@example.com", phone: "0773333333", address: "Galle", specialization: "Electrical Engineer", price: "3000", projects: dummyProjects }
-        ];
-
-        const dummyCustomer = { id: 4, name: "John Doe", email: "john@example.com", phone: "0774444444", address: "Colombo", type: "customer" };
-
-        const api = async (file, method = 'GET', body = null) => {
-            console.log(`Mock API Call: ${file}`, body);
-            if (file.includes('getEngineers')) {
-                return { engineers: dummyEngineers };
-            }
-            if (file.includes('getPublicEngineerProfile')) {
-                const urlParams = new URLSearchParams(file.split('?')[1]);
-                const id = parseInt(urlParams.get('engineerId'));
-                const eng = dummyEngineers.find(e => e.id === id) || dummyEngineers[0];
-                return { engineer: eng };
-            }
-            if (file.includes('login')) {
-                // Determine mock user type based on email for testing
-                if (body && body.email && body.email.includes('eng')) {
-                    return { user: { ...dummyEngineers[0], type: 'engineer' } };
-                } else {
-                    return { user: dummyCustomer };
-                }
-            }
-            if (file.includes('signup')) {
-                return { message: "Registration successful!" };
-            }
-            if (file.includes('updateEngineer')) {
-                return { message: "Profile Updated Successfully", user: { ...dummyEngineers[0], type: 'engineer', ...body } };
-            }
-            return null;
-        };
 
         useEffect(() => {
             const loadHomeData = async () => {
@@ -224,388 +45,82 @@
                     setHomeProjects(allProjs);
                 }
             };
-            if (view === 'home') loadHomeData();
-        }, [view]);
-
-        const handleLogin = async (e) => {
-            e.preventDefault();
-            const res = await api('login.php', 'POST', { email: formData.email, password: formData.password });
-            if (res && res.user) {
-                setUser(res.user);
-                if (res.user.type === 'engineer') {
-                    setProfileForm({
-                        name: res.user.name,
-                        phone: res.user.phone,
-                        specialization: res.user.specialization || '',
-                        price: res.user.price || ''
-                    });
-                    const prof = await api(`getPublicEngineerProfile.php?engineerId=${res.user.id}`);
-                    setMyProjects(prof?.engineer?.projects || []);
-                    setChatRules(JSON.parse(localStorage.getItem('rules_' + res.user.id) || '[]'));
-                } else {
-                    const engs = await api('getEngineers.php');
-                    setEngineers(engs?.engineers || []);
-                }
-                setView('dashboard');
-                setShowPassword(false); // Reset password visibility on login
-            } else { alert('Login Failed!'); }
-        };
-
-        const handleRegister = async (e) => {
-            e.preventDefault();
-            const res = await api('signup.php', 'POST', formData);
-            if (res && res.message.includes('successful')) { 
-                alert('Registered!'); 
-                setView('login'); 
-                setShowPassword(false); // Reset password visibility
-            }
-            else { alert(res.message); }
-        };
-
-        const addProject = async () => {
-            if (!projFile) { alert("Please select an image file."); return; }
-
-            try {
-                const data = { message: "Successfully Uploaded" };
-
-                if (data.message && data.message.includes("Successfully")) {
-                    alert(data.message);
-                    const prof = await api(`getPublicEngineerProfile.php?engineerId=${user.id}`);
-                    setMyProjects(prof?.engineer?.projects || []);
-                    setProjForm({ title: '', description: '' });
-                    setProjFile(null);
-                } else { alert("Upload Failed: " + data.message); }
-            } catch (error) { console.error(error); alert("Error uploading project."); }
-        };
-
-        const updateProfile = async () => {
-            const res = await api(`updateEngineer.php?id=${user.id}`, 'POST', profileForm);
-            if (res && res.user) { setUser(res.user); alert("Profile Updated!"); }
-            else { alert(res.message || "Error updating"); }
-        };
-
-        const addRule = () => {
-            const rules = [...chatRules, { ...newRule, id: Date.now() }];
-            setChatRules(rules);
-            localStorage.setItem('rules_' + user.id, JSON.stringify(rules));
-            setNewRule({ keyword: '', answer: '' });
-        };
+            loadHomeData();
+        }, []);
 
         const scrollToSection = (id) => {
             const element = document.getElementById(id);
             if (element) element.scrollIntoView({ behavior: 'smooth' });
         };
 
-        const filteredEngineers = engineers.filter(eng => {
-            const matchName = eng.name.toLowerCase().includes(searchName.toLowerCase());
-            const matchLoc = searchLocation ? (eng.address && eng.address.toLowerCase().includes(searchLocation.toLowerCase())) : true;
-            const matchSpec = searchSpec ? (eng.specialization && eng.specialization.toLowerCase().includes(searchSpec.toLowerCase())) : true;
-            const engPrice = parseFloat(eng.price) || 0;
-            const filterPrice = parseFloat(searchPrice);
-            const matchPrice = searchPrice ? (engPrice > 0 && engPrice <= filterPrice) : true;
-            return matchName && matchLoc && matchSpec && matchPrice;
-        });
-
-        // --- VIEWS ---
-        if (view === 'home') {
-            return (
-                <div className="relative min-h-screen">
-                    <nav className="fixed top-0 w-full z-50 glass-nav px-8 py-4 flex justify-between items-center text-white">
-                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.location.reload()}>
-                            <div className="bg-blue-600 p-1.5 rounded-lg"><Icon path={icons.home}/></div>
-                            <span className="text-xl font-bold tracking-tight">Dream Home</span>
-                        </div>
-                        <div className="hidden md:flex gap-8 text-sm font-medium text-gray-200">
-                            <button onClick={() => window.location.reload()} className="hover:text-white transition">Home</button>
-                            <button onClick={() => scrollToSection('services')} className="hover:text-white transition">Services</button>
-                            <button onClick={() => scrollToSection('projects')} className="hover:text-white transition">Projects</button>
-                            <button onClick={() => scrollToSection('contact')} className="hover:text-white transition">Contact</button>
-                        </div>
-                        <div className="flex gap-3">
-                            <Button onClick={() => setView('login')} variant="transparent" className="!py-2 !px-4">Login</Button>
-                            <Button onClick={() => setView('signup')} variant="primary" className="!py-2 !px-4">Sign Up</Button>
-                        </div>
-                    </nav>
-
-                    <div id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
-                        <video autoPlay loop muted playsInline className="video-bg">
-                            <source src={VIDEO_URL} type="video/mp4" />
-                        </video>
-                        <div className="absolute inset-0 bg-black/50"></div>
-
-                        <div className="relative z-10 text-center max-w-4xl px-4 animate-fade-in-up">
-                            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">Build Your<br/><span className="text-blue-400">Dream Home</span></h1>
-                            <p className="text-lg text-gray-200 mb-8">Connect with top-tier engineers and architects to turn your vision into reality.</p>
-                            <Button onClick={() => scrollToSection('projects')} variant="primary" className="text-lg px-8 py-3">View Projects</Button>
-                        </div>
+        return (
+            <div className="relative min-h-screen">
+                <nav className="fixed top-0 w-full z-50 glass-nav px-8 py-4 flex justify-between items-center text-white">
+                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.location.reload()}>
+                        <div className="bg-blue-600 p-1.5 rounded-lg"><Icon path={icons.home}/></div>
+                        <span className="text-xl font-bold tracking-tight">Dream Home</span>
                     </div>
+                    <div className="hidden md:flex gap-8 text-sm font-medium text-gray-200">
+                        <button onClick={() => window.location.reload()} className="hover:text-white transition">Home</button>
+                        <button onClick={() => scrollToSection('services')} className="hover:text-white transition">Services</button>
+                        <button onClick={() => scrollToSection('projects')} className="hover:text-white transition">Projects</button>
+                        <button onClick={() => scrollToSection('contact')} className="hover:text-white transition">Contact</button>
+                    </div>
+                    <div className="flex gap-3">
+                        <Button onClick={() => window.location.href = 'login.html'} variant="transparent" className="!py-2 !px-4">Login</Button>
+                        <Button onClick={() => window.location.href = 'login.html?view=signup'} variant="primary" className="!py-2 !px-4">Sign Up</Button>
+                    </div>
+                </nav>
 
-                    {/* Services, Projects, Contact Sections */}
-                    <div id="services" className="section-padding relative z-10">
-                        <div className="container mx-auto max-w-6xl">
-                            <h2 className="text-4xl font-bold text-center mb-12 text-slate-100">Our <span className="text-blue-400">Services</span></h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{perspective: '1000px'}}>
-                                <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 mb-6 mx-auto shadow-[0_0_15px_rgba(59,130,246,0.5)]"><Icon path={icons.briefcase}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Construction Planning</h3><p className="text-slate-300 text-center">Expert consultation and planning.</p></div>
-                                <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 mb-6 mx-auto shadow-[0_0_15px_rgba(168,85,247,0.5)]"><Icon path={icons.tool}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Architecture Design</h3><p className="text-slate-300 text-center">Modern and sustainable designs.</p></div>
-                                <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 mb-6 mx-auto shadow-[0_0_15px_rgba(34,197,94,0.5)]"><Icon path={icons.pen}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Interior Renovation</h3><p className="text-slate-300 text-center">Transform your existing space.</p></div>
-                            </div>
-                        </div>
+                <div id="home" className="relative h-screen flex items-center justify-center overflow-hidden">
+                    <video autoPlay loop muted playsInline className="video-bg">
+                        <source src={VIDEO_URL} type="video/mp4" />
+                    </video>
+                    <div className="absolute inset-0 bg-black/50"></div>
+
+                    <div className="relative z-10 text-center max-w-4xl px-4 animate-fade-in-up">
+                        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">Build Your<br/><span className="text-blue-400">Dream Home</span></h1>
+                        <p className="text-lg text-gray-200 mb-8">Connect with top-tier engineers and architects to turn your vision into reality.</p>
+                        <Button onClick={() => scrollToSection('projects')} variant="primary" className="text-lg px-8 py-3">View Projects</Button>
                     </div>
-                    <div id="projects" className="section-padding relative z-10">
-                        <div className="container mx-auto max-w-6xl">
-                            <h2 className="text-4xl font-bold text-center mb-12 text-slate-100">Featured <span className="text-blue-400">Projects</span></h2>
-                            {homeProjects.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{perspective: '1000px'}}>
-                                    {homeProjects.map((proj, index) => (
-                                        <div key={index} onClick={() => { alert("You need to create an account to view details."); setView('signup'); }} className="card-3d group relative rounded-2xl overflow-hidden cursor-pointer h-64">
-                                            <img src={proj.image_url} className="w-full h-full object-cover transition duration-500 group-hover:scale-110"/>
-                                            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><div className="text-center p-4"><h3 className="text-white font-bold text-xl">{proj.title}</h3><p className="text-blue-300 text-sm mt-2">Click to view details</p></div></div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : (<div className="text-center py-12 glass rounded-2xl"><p className="text-slate-300 text-lg">No projects published yet.</p><Button onClick={() => setView('signup')} className="mt-4 mx-auto">Join Now</Button></div>)}
-                        </div>
-                    </div>
-                    <div id="contact" className="bg-slate-900 text-white py-16 relative z-10">
-                        <div className="container mx-auto px-6 text-center">
-                            <h2 className="text-3xl font-bold mb-8">Contact Us</h2>
-                            <div className="flex flex-col md:flex-row justify-center gap-12 mb-12">
-                                <div className="flex flex-col items-center"><div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4"><Icon path={icons.phone}/></div><h3 className="font-bold text-lg">Call Us</h3><p className="text-gray-400 mt-2">+94 77 123 4567</p></div>
-                                <div className="flex flex-col items-center"><div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4"><Icon path={icons.msg}/></div><h3 className="font-bold text-lg">Email Us</h3><p className="text-gray-400 mt-2">admin@dreamhome.lk</p></div>
-                            </div>
+                </div>
+
+                <div id="services" className="section-padding relative z-10">
+                    <div className="container mx-auto max-w-6xl">
+                        <h2 className="text-4xl font-bold text-center mb-12 text-slate-100">Our <span className="text-blue-400">Services</span></h2>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{perspective: '1000px'}}>
+                            <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 mb-6 mx-auto shadow-[0_0_15px_rgba(59,130,246,0.5)]"><Icon path={icons.briefcase}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Construction Planning</h3><p className="text-slate-300 text-center">Expert consultation and planning.</p></div>
+                            <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 mb-6 mx-auto shadow-[0_0_15px_rgba(168,85,247,0.5)]"><Icon path={icons.tool}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Architecture Design</h3><p className="text-slate-300 text-center">Modern and sustainable designs.</p></div>
+                            <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 mb-6 mx-auto shadow-[0_0_15px_rgba(34,197,94,0.5)]"><Icon path={icons.pen}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Interior Renovation</h3><p className="text-slate-300 text-center">Transform your existing space.</p></div>
                         </div>
                     </div>
                 </div>
-            );
-        }
-
-        if (view === 'login' || view === 'signup') {
-            return (
-                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
-                    <div className="glass p-10 rounded-3xl shadow-xl w-full max-w-md animate-fade-in-up text-slate-100">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">{view === 'login' ? 'Login' : 'Join Us'}</h2>
-                            <button onClick={() => { setView('home'); setShowPassword(false); }} className="text-slate-400 hover:text-blue-400"><Icon path={icons.home}/></button>
-                        </div>
-                        <form onSubmit={view === 'login' ? handleLogin : handleRegister} className="space-y-4">
-                            {view === 'signup' && (
-                                <>
-                                    <div className="flex gap-2 bg-slate-800/50 p-1 rounded-lg">
-                                        {['engineer', 'customer'].map(t => (
-                                            <button type="button" key={t} onClick={() => setFormData({...formData, type:t})} className={`flex-1 py-2 rounded-md font-bold capitalize ${formData.type === t ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>{t}</button>
-                                        ))}
-                                    </div>
-                                    <input placeholder="Name" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, name:e.target.value})} required />
-                                    <input placeholder="Phone" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, phone:e.target.value})} required />
-                                    
-                                    {/* ENGINEER PROFESSION SELECTION */}
-                                    {formData.type === 'engineer' && (
-                                        <>
-                                            <select 
-                                                className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-slate-100"
-                                                onChange={(e) => {
-                                                    if (e.target.value === 'Other') {
-                                                        setIsOtherProfession(true);
-                                                        setFormData({...formData, specialization: ''});
-                                                    } else {
-                                                        setIsOtherProfession(false);
-                                                        setFormData({...formData, specialization: e.target.value});
-                                                    }
-                                                }}
-                                                required
-                                            >
-                                                <option value="">Select Profession</option>
-                                                {professionOptions.map((opt, i) => (
-                                                    <option key={i} value={opt}>{opt}</option>
-                                                ))}
-                                            </select>
-                                            
-                                            {/* Show Input if 'Other' is selected */}
-                                            {isOtherProfession && (
-                                                <input 
-                                                    placeholder="Type your profession (e.g. Geotechnical Engineer)" 
-                                                    className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 animate-fade-in-up text-white placeholder-slate-400"
-                                                    onChange={e => setFormData({...formData, specialization:e.target.value})} 
-                                                    required 
-                                                />
-                                            )}
-                                        </>
-                                    )}
-
-                                    <input placeholder="Address" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, address:e.target.value})} required />
-                                </>
-                            )}
-                            <input placeholder="Email" type="email" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, email:e.target.value})} required />
-                            
-                            {/* --- PASSWORD FIELD WITH SHOW/HIDE TOGGLE --- */}
-                            <div className="relative">
-                                <input 
-                                    placeholder="Password" 
-                                    type={showPassword ? "text" : "password"} 
-                                    className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 pr-10 text-white placeholder-slate-400"
-                                    onChange={e => setFormData({...formData, password:e.target.value})} 
-                                    required 
-                                />
-                                <button 
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-3.5 text-gray-500 hover:text-blue-600 focus:outline-none"
-                                >
-                                    <Icon path={showPassword ? icons.eyeOff : icons.eye} />
-                                </button>
-                            </div>
-
-                            <Button className="w-full" type="submit">{view === 'login' ? 'Login' : 'Register'}</Button>
-                        </form>
-                    </div>
-                </div>
-            );
-        }
-
-        // ... (Dashboard codes remain same) ...
-        if (view === 'dashboard' && user?.type === 'engineer') {
-            return (
-                <div className="min-h-screen bg-slate-900">
-                    <nav className="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm text-slate-100 border-none">
-                        <div className="text-xl font-bold flex items-center gap-2 text-blue-400"><Icon path={icons.briefcase}/> EngineerHub</div>
-                        <div className="flex items-center gap-4">
-                            <span className="text-slate-300 font-medium hidden md:block">Hello, {user.name}</span>
-                            <Button variant="danger" onClick={() => { setUser(null); setView('home'); }} className="!py-2 !px-4 !text-sm"><Icon path={icons.logout}/> Logout</Button>
-                        </div>
-                    </nav>
-                    <div className="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fade-in-up">
-                        <div className="lg:col-span-4 space-y-6">
-                            <div className="card-3d p-6 h-fit text-slate-100 rounded-2xl">
-                                <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Icon path={icons.edit}/> Edit Profile</h2>
-                                <div className="space-y-3">
-                                    <input placeholder="Name" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name:e.target.value})} />
-                                    <input placeholder="Phone" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone:e.target.value})} />
-                                    <input placeholder="Specialization (e.g. Architect)" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.specialization} onChange={e => setProfileForm({...profileForm, specialization:e.target.value})} />
-                                    <input placeholder="Price (LKR) - Numbers only" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.price} onChange={e => setProfileForm({...profileForm, price:e.target.value})} type="number" />
-                                    <Button onClick={updateProfile} className="w-full">Update Profile</Button>
-                                </div>
-                            </div>
-                            <div className="card-3d p-6 h-fit text-slate-100 rounded-2xl">
-                                <h2 className="text-lg font-bold mb-4">Chatbot Rules</h2>
-                                <div className="space-y-3 mb-4">
-                                    <input placeholder="Keyword" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={newRule.keyword} onChange={e => setNewRule({...newRule, keyword:e.target.value})} />
-                                    <input placeholder="Reply" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={newRule.answer} onChange={e => setNewRule({...newRule, answer:e.target.value})} />
-                                    <Button onClick={addRule} className="w-full">Add Rule</Button>
-                                </div>
-                                <div className="max-h-60 overflow-y-auto space-y-2">
-                                    {chatRules.map((r, i) => (
-                                        <div key={i} className="bg-slate-800/50 p-2 rounded flex justify-between text-sm">
-                                            <span><b>{r.keyword}</b>: {r.answer}</span>
-                                            <button onClick={() => { const n = chatRules.filter((_, idx) => idx !== i); setChatRules(n); localStorage.setItem('rules_'+user.id, JSON.stringify(n)); }} className="text-red-500">x</button>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="lg:col-span-8 card-3d p-6 text-slate-100 rounded-2xl">
-                            <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Icon path={icons.upload}/> Add Project</h2>
-                            <div className="space-y-4 mb-6">
-                                <input placeholder="Project Title" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={projForm.title} onChange={e => setProjForm({...projForm, title:e.target.value})} />
-                                <textarea placeholder="Description" rows="2" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={projForm.description} onChange={e => setProjForm({...projForm, description:e.target.value})} />
-                                {/* File Upload Input */}
-                                <div className="border-2 border-dashed border-slate-500 rounded-lg p-6 text-center hover:bg-slate-800/50 transition cursor-pointer relative">
-                                    <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => setProjFile(e.target.files[0])} />
-                                    <div className="text-slate-400">
-                                        <p className="font-bold">{projFile ? projFile.name : "Click to Upload Image"}</p>
-                                        <p className="text-sm">JPG, PNG, GIF (Max 5MB)</p>
-                                    </div>
-                                </div>
-                                <Button onClick={addProject}>Publish Project</Button>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {myProjects.map((p, i) => (
-                                    <div key={i} className="card-3d rounded-xl overflow-hidden border-none shadow-lg">
-                                        <img src={p.image_url} className="w-full h-32 object-cover"/>
-                                        <div className="p-4 bg-slate-800/50 backdrop-blur-sm"><h3 className="font-bold text-slate-100">{p.title}</h3></div>
+                <div id="projects" className="section-padding relative z-10">
+                    <div className="container mx-auto max-w-6xl">
+                        <h2 className="text-4xl font-bold text-center mb-12 text-slate-100">Featured <span className="text-blue-400">Projects</span></h2>
+                        {homeProjects.length > 0 ? (
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{perspective: '1000px'}}>
+                                {homeProjects.map((proj, index) => (
+                                    <div key={index} onClick={() => { alert("You need to create an account to view details."); window.location.href = 'login.html?view=signup'; }} className="card-3d group relative rounded-2xl overflow-hidden cursor-pointer h-64">
+                                        <img src={proj.image_url} className="w-full h-full object-cover transition duration-500 group-hover:scale-110"/>
+                                        <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><div className="text-center p-4"><h3 className="text-white font-bold text-xl">{proj.title}</h3><p className="text-blue-300 text-sm mt-2">Click to view details</p></div></div>
                                     </div>
                                 ))}
                             </div>
+                        ) : (<div className="text-center py-12 glass rounded-2xl"><p className="text-slate-300 text-lg">No projects published yet.</p><Button onClick={() => window.location.href = 'login.html?view=signup'} className="mt-4 mx-auto">Join Now</Button></div>)}
+                    </div>
+                </div>
+                <div id="contact" className="bg-slate-900 text-white py-16 relative z-10">
+                    <div className="container mx-auto px-6 text-center">
+                        <h2 className="text-3xl font-bold mb-8">Contact Us</h2>
+                        <div className="flex flex-col md:flex-row justify-center gap-12 mb-12">
+                            <div className="flex flex-col items-center"><div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4"><Icon path={icons.phone}/></div><h3 className="font-bold text-lg">Call Us</h3><p className="text-gray-400 mt-2">+94 77 123 4567</p></div>
+                            <div className="flex flex-col items-center"><div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center mb-4"><Icon path={icons.msg}/></div><h3 className="font-bold text-lg">Email Us</h3><p className="text-gray-400 mt-2">admin@dreamhome.lk</p></div>
                         </div>
                     </div>
                 </div>
-            );
-        }
-
-        if (view === 'dashboard' && user?.type === 'customer') {
-            return (
-                <div className="min-h-screen bg-slate-900">
-                    <nav className="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm text-slate-100 border-none">
-                        <div className="text-xl font-bold">Find<span className="text-blue-400">Pro</span></div>
-                        <div className="flex items-center gap-4">
-                             <span className="text-slate-300 font-medium hidden md:block">Hello, {user.name}</span>
-                            <Button variant="danger" onClick={() => { setUser(null); setView('home'); }} className="!py-2 !px-4 !text-sm">Logout</Button>
-                        </div>
-                    </nav>
-                    <div className="container mx-auto p-6 animate-fade-in-up">
-                        <div className="card-3d p-6 rounded-3xl mb-8 border border-slate-700/50">
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.search}/></div><input placeholder="Search Name..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400 outline-none" value={searchName} onChange={e => setSearchName(e.target.value)}/></div>
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.home}/></div><input placeholder="Location..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400 outline-none" value={searchLocation} onChange={e => setSearchLocation(e.target.value)}/></div>
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.briefcase}/></div><select className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 appearance-none text-white outline-none" value={searchSpec} onChange={e => setSearchSpec(e.target.value)}><option value="">All Professionals</option><option value="Civil">Civil</option><option value="Architect">Architect</option><option value="Electrical">Electrical</option></select></div>
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400">$</div><input type="number" placeholder="Max Price" className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400 outline-none" value={searchPrice} onChange={e => setSearchPrice(e.target.value)}/></div>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style={{perspective: '1000px'}}>
-                            {filteredEngineers.map(eng => (
-                                <div key={eng.id} className="card-3d p-6 rounded-2xl text-center">
-                                    <div className="w-16 h-16 bg-blue-500/20 rounded-full mx-auto flex items-center justify-center text-blue-400 mb-4 shadow-[0_0_15px_rgba(59,130,246,0.5)]"><Icon path={icons.user}/></div>
-                                    <h3 className="text-lg font-bold text-slate-100">{eng.name}</h3>
-                                    <p className="text-blue-400 text-sm mb-4 font-bold">{eng.specialization}</p>
-                                    <p className="text-slate-300 text-xs mb-4 flex justify-center gap-1"><Icon path={icons.home}/> {eng.address} | Price: {eng.price ? `Rs.${eng.price}` : 'N/A'}</p>
-                                    <Button onClick={async () => {
-                                        const res = await api(`getPublicEngineerProfile.php?engineerId=${eng.id}`);
-                                        setSelectedEng(res.engineer);
-                                        const storedRules = localStorage.getItem('rules_' + eng.id);
-                                        setChatRules(storedRules ? JSON.parse(storedRules) : []);
-                                        setView('profile');
-                                    }} variant="secondary" className="w-full">View Profile</Button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            );
-        }
-
-        if (view === 'profile' && selectedEng) {
-            return (
-                <div className="min-h-screen bg-slate-900 pb-20 animate-fade-in-up">
-                    <div className="h-64 bg-gradient-to-r from-blue-600 to-indigo-900 relative">
-                        <button onClick={() => setView('dashboard')} className="absolute top-6 left-6 bg-white/20 text-white px-4 py-2 rounded-full font-bold hover:bg-white/30">Back</button>
-                    </div>
-                    <div className="container mx-auto px-4 -mt-20 relative z-10">
-                        <div className="card-3d rounded-3xl p-8 text-slate-100">
-                            <div className="flex justify-between items-end mb-6">
-                                <div>
-                                    <h1 className="text-4xl font-bold text-white">{selectedEng.name}</h1>
-                                    <p className="text-xl text-blue-400 font-medium">{selectedEng.specialization}</p>
-                                    <p className="text-slate-400 mt-2">{selectedEng.address} | {selectedEng.phone}</p>
-                                    <p className="text-slate-300 font-bold mt-2 text-lg">Price: {selectedEng.price ? `Rs. ${selectedEng.price}` : 'Contact'}</p>
-                                </div>
-                                <Button onClick={() => setShowChat(!showChat)} className="animate-bounce"><Icon path={icons.msg}/> Chat Now</Button>
-                            </div>
-                            <h3 className="text-xl font-bold mb-4 border-b border-slate-700/50 pb-2">Projects</h3>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                {selectedEng.projects?.length > 0 ? selectedEng.projects.map((p, i) => (
-                                    <div key={i} className="card-3d rounded-xl border border-slate-700/50 overflow-hidden shadow">
-                                        <img src={p.image_url} className="w-full h-48 object-cover"/>
-                                        <div className="p-4 glass"><h4 className="font-bold text-slate-100">{p.title}</h4></div>
-                                    </div>
-                                )) : <p className="text-slate-400 col-span-3 text-center">No projects added yet.</p>}
-                            </div>
-                        </div>
-                    </div>
-                    {showChat && <ChatbotWidget engineerName={selectedEng.name} rules={chatRules} onClose={() => setShowChat(false)} />}
-                </div>
-            );
-        }
-
-        return <div className="h-screen flex items-center justify-center font-bold text-blue-600">Loading...</div>;
+            </div>
+        );
     }
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
