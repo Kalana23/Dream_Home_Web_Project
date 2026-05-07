@@ -2,7 +2,7 @@
 include 'config.php';
 
 if (isset($_GET['engineerId'])) {
-    $id = $_GET['engineerId'];
+    $id = $conn->real_escape_string($_GET['engineerId']);
     
     // Engineer ගේ විස්තර ගන්න (experience සහ education එක්ක)
     $engRes = $conn->query("SELECT id, name, email, phone, address, specialization, experience, education FROM engineers WHERE id='$id'");

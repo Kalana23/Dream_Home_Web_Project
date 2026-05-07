@@ -11,7 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!empty($data->email) && !empty($data->password)) {
         $email = $conn->real_escape_string($data->email);
-        $password = $data->password;
+        $password = $conn->real_escape_string($data->password);
 
         // 1. මුලින්ම Engineers table එකේ බලනවා
         $sqlEng = "SELECT * FROM engineers WHERE email='$email' AND password='$password'";

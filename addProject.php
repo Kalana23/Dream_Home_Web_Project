@@ -3,9 +3,9 @@ include 'config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
-    $engId = $_POST['engineerId'];
-    $title = $_POST['title'];
-    $desc = $_POST['description'];
+    $engId = $conn->real_escape_string($_POST['engineerId']);
+    $title = $conn->real_escape_string($_POST['title']);
+    $desc = $conn->real_escape_string($_POST['description']);
 
     // ෆොටෝ එකක් Upload කර ඇත්දැයි බැලීම
     if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {

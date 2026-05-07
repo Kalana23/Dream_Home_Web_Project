@@ -3,7 +3,7 @@ include 'config.php';
 $data = json_decode(file_get_contents("php://input"));
 
 if ($data && isset($_GET['id'])) {
-    $id = $_GET['id'];
+    $id = $conn->real_escape_string($_GET['id']);
     $name = $conn->real_escape_string($data->name);
     $phone = $conn->real_escape_string($data->phone);
     $spec = $conn->real_escape_string($data->specialization);

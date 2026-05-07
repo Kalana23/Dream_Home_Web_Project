@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!empty($data->email) && !empty($data->password) && !empty($data->name) && !empty($data->type)) {
         
         $email = $conn->real_escape_string($data->email);
-        $password = $data->password; // Passwords should normally be hashed, kept simple as per your request
+        $password = $conn->real_escape_string($data->password); // Passwords should normally be hashed, kept simple as per your request
         $name = $conn->real_escape_string($data->name);
         $phone = $conn->real_escape_string($data->phone);
         $address = $conn->real_escape_string($data->address);
