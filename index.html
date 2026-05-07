@@ -18,9 +18,15 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); }
-        .glass-nav { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass { background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
+        .glass-nav { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37); }
         
+        .card-3d { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); transform-style: preserve-3d; transition: all 0.5s ease; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .card-3d:hover { transform: translateY(-10px) rotateX(2deg) rotateY(2deg); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
+        .btn-3d { transform-style: preserve-3d; transition: all 0.3s ease; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+        .btn-3d:hover { transform: translateY(-2px) translateZ(5px); box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+
         .video-bg { 
             position: fixed; 
             right: 0; 
@@ -37,7 +43,7 @@
         .animate-fade-in-up { animation: fadeInUp 0.6s ease-out forwards; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body class="bg-slate-900 text-slate-100">
 
 <div id="root"></div>
 
@@ -83,12 +89,12 @@
     ];
 
     const Button = ({ children, onClick, type = 'button', variant = 'primary', className = '' }) => {
-        const base = "px-6 py-2 rounded-full font-bold transition-all transform hover:scale-105 shadow-md flex items-center justify-center gap-2 text-sm";
+        const base = "btn-3d px-6 py-2 rounded-full font-bold flex items-center justify-center gap-2 text-sm cursor-pointer";
         const variants = {
-            primary: "bg-blue-600 text-white hover:bg-blue-700",
-            secondary: "bg-white text-slate-800 hover:bg-gray-100 border",
-            danger: "bg-red-500 text-white hover:bg-red-600",
-            transparent: "bg-white/10 text-white hover:bg-white/20 border border-white/30 backdrop-blur-sm"
+            primary: "bg-blue-600/80 backdrop-blur-md text-white border border-blue-400/30",
+            secondary: "bg-white/10 backdrop-blur-md text-slate-100 border border-white/20",
+            danger: "bg-red-500/80 backdrop-blur-md text-white border border-red-400/30",
+            transparent: "bg-white/5 backdrop-blur-sm text-white border border-white/10"
         };
         return <button onClick={onClick} type={type} className={`${base} ${variants[variant]} ${className}`}>{children}</button>;
     };
@@ -112,22 +118,22 @@
             }, 600);
         };
         return (
-            <div className="fixed bottom-4 right-4 w-80 md:w-96 h-[450px] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-gray-200 animate-fade-in-up" style={{ zIndex: 99999 }}>
+            <div className="fixed bottom-4 right-4 w-80 md:w-96 h-[450px] glass rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-slate-700 animate-fade-in-up" style={{ zIndex: 99999 }}>
                 <div className="bg-blue-600 p-4 text-white flex justify-between items-center shadow-md">
                     <span className="font-bold text-sm">Assistant</span>
                     <button onClick={onClose}><Icon path={icons.close}/></button>
                 </div>
-                <div className="flex-1 p-4 overflow-y-auto bg-gray-50 space-y-3">
+                <div className="flex-1 p-4 overflow-y-auto bg-slate-900/50 space-y-3">
                     {messages.map((m, i) => (
                         <div key={i} className={`flex ${m.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${m.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-white text-gray-800 border shadow-sm rounded-bl-none'}`}>{m.text}</div>
+                            <div className={`max-w-[80%] p-3 rounded-2xl text-sm ${m.sender === 'user' ? 'bg-blue-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-100 border border-slate-700 shadow-sm rounded-bl-none'}`}>{m.text}</div>
                         </div>
                     ))}
                     <div ref={bottomRef}></div>
                 </div>
-                <div className="p-3 bg-white border-t flex gap-2">
-                    <input className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm outline-none" placeholder="Type..." value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSend()}/>
-                    <button onClick={handleSend} className="text-blue-600"><Icon path={icons.send}/></button>
+                <div className="p-3 bg-slate-800/50 border-t border-slate-700 flex gap-2">
+                    <input className="flex-1 bg-slate-700 rounded-full px-4 py-2 text-sm outline-none text-slate-100 placeholder-slate-400" placeholder="Type..." value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSend()}/>
+                    <button onClick={handleSend} className="text-blue-400"><Icon path={icons.send}/></button>
                 </div>
             </div>
         );
@@ -335,29 +341,29 @@
                     </div>
 
                     {/* Services, Projects, Contact Sections */}
-                    <div id="services" className="section-padding bg-slate-50 relative z-10">
+                    <div id="services" className="section-padding relative z-10">
                         <div className="container mx-auto max-w-6xl">
-                            <h2 className="text-4xl font-bold text-center mb-12 text-slate-800">Our <span className="text-blue-600">Services</span></h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                                <div className="bg-white p-8 rounded-2xl shadow-lg hover:-translate-y-2 transition"><div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 mb-6 mx-auto"><Icon path={icons.briefcase}/></div><h3 className="text-xl font-bold text-center mb-4">Construction Planning</h3><p className="text-gray-600 text-center">Expert consultation and planning.</p></div>
-                                <div className="bg-white p-8 rounded-2xl shadow-lg hover:-translate-y-2 transition"><div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 mb-6 mx-auto"><Icon path={icons.tool}/></div><h3 className="text-xl font-bold text-center mb-4">Architecture Design</h3><p className="text-gray-600 text-center">Modern and sustainable designs.</p></div>
-                                <div className="bg-white p-8 rounded-2xl shadow-lg hover:-translate-y-2 transition"><div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center text-green-600 mb-6 mx-auto"><Icon path={icons.pen}/></div><h3 className="text-xl font-bold text-center mb-4">Interior Renovation</h3><p className="text-gray-600 text-center">Transform your existing space.</p></div>
+                            <h2 className="text-4xl font-bold text-center mb-12 text-slate-100">Our <span className="text-blue-400">Services</span></h2>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8" style={{perspective: '1000px'}}>
+                                <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 mb-6 mx-auto shadow-[0_0_15px_rgba(59,130,246,0.5)]"><Icon path={icons.briefcase}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Construction Planning</h3><p className="text-slate-300 text-center">Expert consultation and planning.</p></div>
+                                <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center text-purple-400 mb-6 mx-auto shadow-[0_0_15px_rgba(168,85,247,0.5)]"><Icon path={icons.tool}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Architecture Design</h3><p className="text-slate-300 text-center">Modern and sustainable designs.</p></div>
+                                <div className="card-3d p-8 rounded-2xl flex flex-col items-center"><div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 mb-6 mx-auto shadow-[0_0_15px_rgba(34,197,94,0.5)]"><Icon path={icons.pen}/></div><h3 className="text-xl font-bold text-center mb-4 text-slate-100">Interior Renovation</h3><p className="text-slate-300 text-center">Transform your existing space.</p></div>
                             </div>
                         </div>
                     </div>
-                    <div id="projects" className="section-padding bg-white relative z-10">
+                    <div id="projects" className="section-padding relative z-10">
                         <div className="container mx-auto max-w-6xl">
-                            <h2 className="text-4xl font-bold text-center mb-12 text-slate-800">Featured <span className="text-blue-600">Projects</span></h2>
+                            <h2 className="text-4xl font-bold text-center mb-12 text-slate-100">Featured <span className="text-blue-400">Projects</span></h2>
                             {homeProjects.length > 0 ? (
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6" style={{perspective: '1000px'}}>
                                     {homeProjects.map((proj, index) => (
-                                        <div key={index} onClick={() => { alert("You need to create an account to view details."); setView('signup'); }} className="group relative rounded-2xl overflow-hidden shadow-lg cursor-pointer h-64">
+                                        <div key={index} onClick={() => { alert("You need to create an account to view details."); setView('signup'); }} className="card-3d group relative rounded-2xl overflow-hidden cursor-pointer h-64">
                                             <img src={proj.image_url} className="w-full h-full object-cover transition duration-500 group-hover:scale-110"/>
-                                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><div className="text-center p-4"><h3 className="text-white font-bold text-xl">{proj.title}</h3><p className="text-blue-300 text-sm mt-2">Click to view details</p></div></div>
+                                            <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition duration-300 flex items-center justify-center"><div className="text-center p-4"><h3 className="text-white font-bold text-xl">{proj.title}</h3><p className="text-blue-300 text-sm mt-2">Click to view details</p></div></div>
                                         </div>
                                     ))}
                                 </div>
-                            ) : (<div className="text-center py-12 bg-gray-50 rounded-2xl"><p className="text-gray-500 text-lg">No projects published yet.</p><Button onClick={() => setView('signup')} className="mt-4">Join Now</Button></div>)}
+                            ) : (<div className="text-center py-12 glass rounded-2xl"><p className="text-slate-300 text-lg">No projects published yet.</p><Button onClick={() => setView('signup')} className="mt-4 mx-auto">Join Now</Button></div>)}
                         </div>
                     </div>
                     <div id="contact" className="bg-slate-900 text-white py-16 relative z-10">
@@ -375,28 +381,28 @@
 
         if (view === 'login' || view === 'signup') {
             return (
-                <div className="min-h-screen flex items-center justify-center p-4 bg-gray-100">
-                    <div className="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md animate-fade-in-up">
+                <div className="min-h-screen flex items-center justify-center p-4 bg-slate-900">
+                    <div className="glass p-10 rounded-3xl shadow-xl w-full max-w-md animate-fade-in-up text-slate-100">
                         <div className="flex justify-between items-center mb-6">
                             <h2 className="text-2xl font-bold">{view === 'login' ? 'Login' : 'Join Us'}</h2>
-                            <button onClick={() => { setView('home'); setShowPassword(false); }} className="text-gray-500 hover:text-blue-600"><Icon path={icons.home}/></button>
+                            <button onClick={() => { setView('home'); setShowPassword(false); }} className="text-slate-400 hover:text-blue-400"><Icon path={icons.home}/></button>
                         </div>
                         <form onSubmit={view === 'login' ? handleLogin : handleRegister} className="space-y-4">
                             {view === 'signup' && (
                                 <>
-                                    <div className="flex gap-2 bg-gray-100 p-1 rounded-lg">
+                                    <div className="flex gap-2 bg-slate-800/50 p-1 rounded-lg">
                                         {['engineer', 'customer'].map(t => (
-                                            <button type="button" key={t} onClick={() => setFormData({...formData, type:t})} className={`flex-1 py-2 rounded-md font-bold capitalize ${formData.type === t ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}>{t}</button>
+                                            <button type="button" key={t} onClick={() => setFormData({...formData, type:t})} className={`flex-1 py-2 rounded-md font-bold capitalize ${formData.type === t ? 'bg-blue-600 text-white shadow' : 'text-slate-400'}`}>{t}</button>
                                         ))}
                                     </div>
-                                    <input placeholder="Name" className="w-full p-3 border rounded-lg outline-none focus:ring-2 ring-blue-500" onChange={e => setFormData({...formData, name:e.target.value})} required />
-                                    <input placeholder="Phone" className="w-full p-3 border rounded-lg outline-none focus:ring-2 ring-blue-500" onChange={e => setFormData({...formData, phone:e.target.value})} required />
+                                    <input placeholder="Name" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, name:e.target.value})} required />
+                                    <input placeholder="Phone" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, phone:e.target.value})} required />
                                     
                                     {/* ENGINEER PROFESSION SELECTION */}
                                     {formData.type === 'engineer' && (
                                         <>
                                             <select 
-                                                className="w-full p-3 border rounded-lg outline-none focus:ring-2 ring-blue-500 bg-white"
+                                                className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-slate-100"
                                                 onChange={(e) => {
                                                     if (e.target.value === 'Other') {
                                                         setIsOtherProfession(true);
@@ -418,7 +424,7 @@
                                             {isOtherProfession && (
                                                 <input 
                                                     placeholder="Type your profession (e.g. Geotechnical Engineer)" 
-                                                    className="w-full p-3 border rounded-lg outline-none focus:ring-2 ring-blue-500 animate-fade-in-up" 
+                                                    className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 animate-fade-in-up text-white placeholder-slate-400"
                                                     onChange={e => setFormData({...formData, specialization:e.target.value})} 
                                                     required 
                                                 />
@@ -426,17 +432,17 @@
                                         </>
                                     )}
 
-                                    <input placeholder="Address" className="w-full p-3 border rounded-lg outline-none focus:ring-2 ring-blue-500" onChange={e => setFormData({...formData, address:e.target.value})} required />
+                                    <input placeholder="Address" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, address:e.target.value})} required />
                                 </>
                             )}
-                            <input placeholder="Email" type="email" className="w-full p-3 border rounded-lg outline-none focus:ring-2 ring-blue-500" onChange={e => setFormData({...formData, email:e.target.value})} required />
+                            <input placeholder="Email" type="email" className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 text-white placeholder-slate-400" onChange={e => setFormData({...formData, email:e.target.value})} required />
                             
                             {/* --- PASSWORD FIELD WITH SHOW/HIDE TOGGLE --- */}
                             <div className="relative">
                                 <input 
                                     placeholder="Password" 
                                     type={showPassword ? "text" : "password"} 
-                                    className="w-full p-3 border rounded-lg outline-none focus:ring-2 ring-blue-500 pr-10" 
+                                    className="w-full p-3 bg-slate-800/50 border border-slate-600 rounded-lg outline-none focus:ring-2 ring-blue-500 pr-10 text-white placeholder-slate-400"
                                     onChange={e => setFormData({...formData, password:e.target.value})} 
                                     required 
                                 />
@@ -459,36 +465,36 @@
         // ... (Dashboard codes remain same) ...
         if (view === 'dashboard' && user?.type === 'engineer') {
             return (
-                <div className="min-h-screen bg-gray-50">
-                    <nav className="bg-white sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
-                        <div className="text-xl font-bold flex items-center gap-2 text-blue-600"><Icon path={icons.briefcase}/> EngineerHub</div>
+                <div className="min-h-screen bg-slate-900">
+                    <nav className="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm text-slate-100 border-none">
+                        <div className="text-xl font-bold flex items-center gap-2 text-blue-400"><Icon path={icons.briefcase}/> EngineerHub</div>
                         <div className="flex items-center gap-4">
-                            <span className="text-gray-600 font-medium hidden md:block">Hello, {user.name}</span>
+                            <span className="text-slate-300 font-medium hidden md:block">Hello, {user.name}</span>
                             <Button variant="danger" onClick={() => { setUser(null); setView('home'); }} className="!py-2 !px-4 !text-sm"><Icon path={icons.logout}/> Logout</Button>
                         </div>
                     </nav>
                     <div className="container mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-8 animate-fade-in-up">
                         <div className="lg:col-span-4 space-y-6">
-                            <div className="bg-white rounded-2xl p-6 shadow border h-fit">
+                            <div className="card-3d p-6 h-fit text-slate-100 rounded-2xl">
                                 <h2 className="text-lg font-bold mb-4 flex items-center gap-2"><Icon path={icons.edit}/> Edit Profile</h2>
                                 <div className="space-y-3">
-                                    <input placeholder="Name" className="w-full p-3 rounded-lg border" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name:e.target.value})} />
-                                    <input placeholder="Phone" className="w-full p-3 rounded-lg border" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone:e.target.value})} />
-                                    <input placeholder="Specialization (e.g. Architect)" className="w-full p-3 rounded-lg border" value={profileForm.specialization} onChange={e => setProfileForm({...profileForm, specialization:e.target.value})} />
-                                    <input placeholder="Price (LKR) - Numbers only" className="w-full p-3 rounded-lg border" value={profileForm.price} onChange={e => setProfileForm({...profileForm, price:e.target.value})} type="number" />
-                                    <Button onClick={updateProfile} className="w-full bg-slate-800 hover:bg-slate-900">Update Profile</Button>
+                                    <input placeholder="Name" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.name} onChange={e => setProfileForm({...profileForm, name:e.target.value})} />
+                                    <input placeholder="Phone" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.phone} onChange={e => setProfileForm({...profileForm, phone:e.target.value})} />
+                                    <input placeholder="Specialization (e.g. Architect)" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.specialization} onChange={e => setProfileForm({...profileForm, specialization:e.target.value})} />
+                                    <input placeholder="Price (LKR) - Numbers only" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={profileForm.price} onChange={e => setProfileForm({...profileForm, price:e.target.value})} type="number" />
+                                    <Button onClick={updateProfile} className="w-full">Update Profile</Button>
                                 </div>
                             </div>
-                            <div className="bg-white rounded-2xl p-6 shadow border h-fit">
+                            <div className="card-3d p-6 h-fit text-slate-100 rounded-2xl">
                                 <h2 className="text-lg font-bold mb-4">Chatbot Rules</h2>
                                 <div className="space-y-3 mb-4">
-                                    <input placeholder="Keyword" className="w-full p-3 rounded-lg border" value={newRule.keyword} onChange={e => setNewRule({...newRule, keyword:e.target.value})} />
-                                    <input placeholder="Reply" className="w-full p-3 rounded-lg border" value={newRule.answer} onChange={e => setNewRule({...newRule, answer:e.target.value})} />
+                                    <input placeholder="Keyword" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={newRule.keyword} onChange={e => setNewRule({...newRule, keyword:e.target.value})} />
+                                    <input placeholder="Reply" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={newRule.answer} onChange={e => setNewRule({...newRule, answer:e.target.value})} />
                                     <Button onClick={addRule} className="w-full">Add Rule</Button>
                                 </div>
                                 <div className="max-h-60 overflow-y-auto space-y-2">
                                     {chatRules.map((r, i) => (
-                                        <div key={i} className="bg-gray-50 p-2 rounded flex justify-between text-sm">
+                                        <div key={i} className="bg-slate-800/50 p-2 rounded flex justify-between text-sm">
                                             <span><b>{r.keyword}</b>: {r.answer}</span>
                                             <button onClick={() => { const n = chatRules.filter((_, idx) => idx !== i); setChatRules(n); localStorage.setItem('rules_'+user.id, JSON.stringify(n)); }} className="text-red-500">x</button>
                                         </div>
@@ -496,15 +502,15 @@
                                 </div>
                             </div>
                         </div>
-                        <div className="lg:col-span-8 bg-white rounded-2xl p-6 shadow border">
+                        <div className="lg:col-span-8 card-3d p-6 text-slate-100 rounded-2xl">
                             <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Icon path={icons.upload}/> Add Project</h2>
                             <div className="space-y-4 mb-6">
-                                <input placeholder="Project Title" className="w-full p-3 border rounded-lg" value={projForm.title} onChange={e => setProjForm({...projForm, title:e.target.value})} />
-                                <textarea placeholder="Description" rows="2" className="w-full p-3 border rounded-lg" value={projForm.description} onChange={e => setProjForm({...projForm, description:e.target.value})} />
+                                <input placeholder="Project Title" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={projForm.title} onChange={e => setProjForm({...projForm, title:e.target.value})} />
+                                <textarea placeholder="Description" rows="2" className="w-full p-3 rounded-lg bg-slate-800/50 border border-slate-600 text-white placeholder-slate-400 outline-none focus:ring-2 ring-blue-500" value={projForm.description} onChange={e => setProjForm({...projForm, description:e.target.value})} />
                                 {/* File Upload Input */}
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:bg-gray-50 transition cursor-pointer relative">
+                                <div className="border-2 border-dashed border-slate-500 rounded-lg p-6 text-center hover:bg-slate-800/50 transition cursor-pointer relative">
                                     <input type="file" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={e => setProjFile(e.target.files[0])} />
-                                    <div className="text-gray-500">
+                                    <div className="text-slate-400">
                                         <p className="font-bold">{projFile ? projFile.name : "Click to Upload Image"}</p>
                                         <p className="text-sm">JPG, PNG, GIF (Max 5MB)</p>
                                     </div>
@@ -513,9 +519,9 @@
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {myProjects.map((p, i) => (
-                                    <div key={i} className="bg-white rounded-xl overflow-hidden shadow border">
+                                    <div key={i} className="card-3d rounded-xl overflow-hidden border-none shadow-lg">
                                         <img src={p.image_url} className="w-full h-32 object-cover"/>
-                                        <div className="p-4"><h3 className="font-bold">{p.title}</h3></div>
+                                        <div className="p-4 bg-slate-800/50 backdrop-blur-sm"><h3 className="font-bold text-slate-100">{p.title}</h3></div>
                                     </div>
                                 ))}
                             </div>
@@ -527,30 +533,30 @@
 
         if (view === 'dashboard' && user?.type === 'customer') {
             return (
-                <div className="min-h-screen bg-gray-50">
-                    <nav className="bg-white sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm">
-                        <div className="text-xl font-bold">Find<span className="text-blue-600">Pro</span></div>
+                <div className="min-h-screen bg-slate-900">
+                    <nav className="glass-nav sticky top-0 z-40 px-6 py-4 flex justify-between items-center shadow-sm text-slate-100 border-none">
+                        <div className="text-xl font-bold">Find<span className="text-blue-400">Pro</span></div>
                         <div className="flex items-center gap-4">
-                             <span className="text-gray-600 font-medium hidden md:block">Hello, {user.name}</span>
+                             <span className="text-slate-300 font-medium hidden md:block">Hello, {user.name}</span>
                             <Button variant="danger" onClick={() => { setUser(null); setView('home'); }} className="!py-2 !px-4 !text-sm">Logout</Button>
                         </div>
                     </nav>
                     <div className="container mx-auto p-6 animate-fade-in-up">
-                        <div className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 mb-8">
+                        <div className="card-3d p-6 rounded-3xl mb-8 border border-slate-700/50">
                             <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.search}/></div><input placeholder="Search Name..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-blue-500" value={searchName} onChange={e => setSearchName(e.target.value)}/></div>
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.home}/></div><input placeholder="Location..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-blue-500" value={searchLocation} onChange={e => setSearchLocation(e.target.value)}/></div>
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.briefcase}/></div><select className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-blue-500 appearance-none" value={searchSpec} onChange={e => setSearchSpec(e.target.value)}><option value="">All Professionals</option><option value="Civil">Civil</option><option value="Architect">Architect</option><option value="Electrical">Electrical</option></select></div>
-                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400">$</div><input type="number" placeholder="Max Price" className="w-full pl-10 pr-4 py-3 rounded-xl bg-gray-50 border-0 focus:ring-2 focus:ring-blue-500" value={searchPrice} onChange={e => setSearchPrice(e.target.value)}/></div>
+                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.search}/></div><input placeholder="Search Name..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400 outline-none" value={searchName} onChange={e => setSearchName(e.target.value)}/></div>
+                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.home}/></div><input placeholder="Location..." className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400 outline-none" value={searchLocation} onChange={e => setSearchLocation(e.target.value)}/></div>
+                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400"><Icon path={icons.briefcase}/></div><select className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 appearance-none text-white outline-none" value={searchSpec} onChange={e => setSearchSpec(e.target.value)}><option value="">All Professionals</option><option value="Civil">Civil</option><option value="Architect">Architect</option><option value="Electrical">Electrical</option></select></div>
+                                <div className="relative"><div className="absolute left-3 top-3 text-gray-400">$</div><input type="number" placeholder="Max Price" className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-800/50 border-0 focus:ring-2 focus:ring-blue-500 text-white placeholder-slate-400 outline-none" value={searchPrice} onChange={e => setSearchPrice(e.target.value)}/></div>
                             </div>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" style={{perspective: '1000px'}}>
                             {filteredEngineers.map(eng => (
-                                <div key={eng.id} className="bg-white rounded-2xl p-6 shadow hover:shadow-lg transition text-center border">
-                                    <div className="w-16 h-16 bg-blue-100 rounded-full mx-auto flex items-center justify-center text-blue-600 mb-4"><Icon path={icons.user}/></div>
-                                    <h3 className="text-lg font-bold">{eng.name}</h3>
-                                    <p className="text-blue-600 text-sm mb-4 font-bold">{eng.specialization}</p>
-                                    <p className="text-gray-500 text-xs mb-4"><Icon path={icons.home}/> {eng.address} | Price: {eng.price ? `Rs.${eng.price}` : 'N/A'}</p>
+                                <div key={eng.id} className="card-3d p-6 rounded-2xl text-center">
+                                    <div className="w-16 h-16 bg-blue-500/20 rounded-full mx-auto flex items-center justify-center text-blue-400 mb-4 shadow-[0_0_15px_rgba(59,130,246,0.5)]"><Icon path={icons.user}/></div>
+                                    <h3 className="text-lg font-bold text-slate-100">{eng.name}</h3>
+                                    <p className="text-blue-400 text-sm mb-4 font-bold">{eng.specialization}</p>
+                                    <p className="text-slate-300 text-xs mb-4 flex justify-center gap-1"><Icon path={icons.home}/> {eng.address} | Price: {eng.price ? `Rs.${eng.price}` : 'N/A'}</p>
                                     <Button onClick={async () => {
                                         const res = await api(`getPublicEngineerProfile.php?engineerId=${eng.id}`);
                                         setSelectedEng(res.engineer);
@@ -568,29 +574,29 @@
 
         if (view === 'profile' && selectedEng) {
             return (
-                <div className="min-h-screen bg-gray-50 pb-20 animate-fade-in-up">
+                <div className="min-h-screen bg-slate-900 pb-20 animate-fade-in-up">
                     <div className="h-64 bg-gradient-to-r from-blue-600 to-indigo-900 relative">
                         <button onClick={() => setView('dashboard')} className="absolute top-6 left-6 bg-white/20 text-white px-4 py-2 rounded-full font-bold hover:bg-white/30">Back</button>
                     </div>
                     <div className="container mx-auto px-4 -mt-20 relative z-10">
-                        <div className="bg-white rounded-3xl shadow-xl p-8">
+                        <div className="card-3d rounded-3xl p-8 text-slate-100">
                             <div className="flex justify-between items-end mb-6">
                                 <div>
-                                    <h1 className="text-4xl font-bold text-gray-900">{selectedEng.name}</h1>
-                                    <p className="text-xl text-blue-600 font-medium">{selectedEng.specialization}</p>
-                                    <p className="text-gray-500 mt-2">{selectedEng.address} | {selectedEng.phone}</p>
-                                    <p className="text-gray-800 font-bold mt-2 text-lg">Price: {selectedEng.price ? `Rs. ${selectedEng.price}` : 'Contact'}</p>
+                                    <h1 className="text-4xl font-bold text-white">{selectedEng.name}</h1>
+                                    <p className="text-xl text-blue-400 font-medium">{selectedEng.specialization}</p>
+                                    <p className="text-slate-400 mt-2">{selectedEng.address} | {selectedEng.phone}</p>
+                                    <p className="text-slate-300 font-bold mt-2 text-lg">Price: {selectedEng.price ? `Rs. ${selectedEng.price}` : 'Contact'}</p>
                                 </div>
                                 <Button onClick={() => setShowChat(!showChat)} className="animate-bounce"><Icon path={icons.msg}/> Chat Now</Button>
                             </div>
-                            <h3 className="text-xl font-bold mb-4 border-b pb-2">Projects</h3>
+                            <h3 className="text-xl font-bold mb-4 border-b border-slate-700/50 pb-2">Projects</h3>
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                 {selectedEng.projects?.length > 0 ? selectedEng.projects.map((p, i) => (
-                                    <div key={i} className="rounded-xl overflow-hidden shadow border">
+                                    <div key={i} className="card-3d rounded-xl border border-slate-700/50 overflow-hidden shadow">
                                         <img src={p.image_url} className="w-full h-48 object-cover"/>
-                                        <div className="p-4 bg-white"><h4 className="font-bold">{p.title}</h4></div>
+                                        <div className="p-4 glass"><h4 className="font-bold text-slate-100">{p.title}</h4></div>
                                     </div>
-                                )) : <p className="text-gray-400 col-span-3 text-center">No projects added yet.</p>}
+                                )) : <p className="text-slate-400 col-span-3 text-center">No projects added yet.</p>}
                             </div>
                         </div>
                     </div>
