@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dream Home - Modern Platform</title>
+
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+
+    <link href="style.css" rel="stylesheet">
+</head>
+<body class="bg-slate-900 text-slate-100">
+
+<div id="root"></div>
+
+<script type="text/babel" src="shared.js"></script>
+<script type="text/babel">
+    const { useState, useEffect } = window;
+    const Icon = window.Icon;
+    const icons = window.icons;
+    const Button = window.Button;
+    const ChatbotWidget = window.ChatbotWidget;
+    const api = window.api;
+
+    function App() {
+        const [selectedEng, setSelectedEng] = useState(null);
+        const [showChat, setShowChat] = useState(false);
+        const [chatRules, setChatRules] = useState([]);
+
+        useEffect(() => {
+            const loadProfile = async () => {
+                const id = new URLSearchParams(window.location.search).get('engineerId');
+                if (!id) {
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+                const res = await api(`getPublicEngineerProfile.php?engineerId=${id}`);
+                if (res && res.engineer) {
+                    setSelectedEng(res.engineer);
+                    const storedRules = localStorage.getItem('rules_' + res.engineer.id);
+                    setChatRules(storedRules ? JSON.parse(storedRules) : []);
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            };
+            loadProfile();
+        }, []);
+
+        if (!selectedEng) return <div className="h-screen flex items-center justify-center font-bold text-blue-600">Loading...</div>;
+
+        return (
+            <div className="min-h-screen bg-slate-900 pb-20 animate-fade-in-up">
+                <div className="h-64 bg-gradient-to-r from-blue-600 to-indigo-900 relative">
+                    <button onClick={() => window.location.href = 'dashboard.html'} className="absolute top-6 left-6 bg-white/20 text-white px-4 py-2 rounded-full font-bold hover:bg-white/30">Back</button>
+                </div>
+                <div className="container mx-auto px-4 -mt-20 relative z-10">
+                    <div className="card-3d rounded-3xl p-8 text-slate-100">
+                        <div className="flex justify-between items-end mb-6">
+                            <div>
+                                <h1 className="text-4xl font-bold text-white">{selectedEng.name}</h1>
+                                <p className="text-xl text-blue-400 font-medium">{selectedEng.specialization}</p>
+                                <p className="text-slate-400 mt-2">{selectedEng.address} | {selectedEng.phone}</p>
+                                <p className="text-slate-300 font-bold mt-2 text-lg">Price: {selectedEng.price ? `Rs. ${selectedEng.price}` : 'Contact'}</p>
+                            </div>
+                            <Button onClick={() => setShowChat(!showChat)} className="animate-bounce"><Icon path={icons.msg}/> Chat Now</Button>
+                        </div>
+                        <h3 className="text-xl font-bold mb-4 border-b border-slate-700/50 pb-2">Projects</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {selectedEng.projects?.length > 0 ? selectedEng.projects.map((p, i) => (
+                                <div key={i} className="card-3d rounded-xl border border-slate-700/50 overflow-hidden shadow">
+                                    <img src={p.image_url} className="w-full h-48 object-cover"/>
+                                    <div className="p-4 glass"><h4 className="font-bold text-slate-100">{p.title}</h4></div>
+                                </div>
+                            )) : <p className="text-slate-400 col-span-3 text-center">No projects added yet.</p>}
+                        </div>
+                    </div>
+                </div>
+                {showChat && <ChatbotWidget engineerName={selectedEng.name} rules={chatRules} onClose={() => setShowChat(false)} />}
+            </div>
+        );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+</script>
+
+</body>
+</html>
