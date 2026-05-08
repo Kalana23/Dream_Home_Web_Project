@@ -35,22 +35,47 @@
 
         const handleLogin = async (e) => {
             e.preventDefault();
-            const res = await api('login.php', 'POST', { email: formData.email, password: formData.password });
-            if (res && res.user) {
-                localStorage.setItem('user', JSON.stringify(res.user));
-                window.location.href = 'dashboard.html';
-            } else { alert('Login Failed!'); }
+            try {
+                const { auth, db } = await window.loadFirebase();
+                const { signInWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js");
+                const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+
+                const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password);
+                const userDoc = await getDoc(doc(db, 'users', userCredential.user.uid));
+
+                if (userDoc.exists()) {
+                    localStorage.setItem('user', JSON.stringify({ id: userCredential.user.uid, ...userDoc.data() }));
+                    window.location.href = 'dashboard.html';
+                } else {
+                    alert('User profile not found!');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('Login Failed: ' + error.message);
+            }
         };
 
         const handleRegister = async (e) => {
             e.preventDefault();
-            const res = await api('signup.php', 'POST', formData);
-            if (res && res.message.includes('successful')) {
+            try {
+                const { auth, db } = await window.loadFirebase();
+                const { createUserWithEmailAndPassword } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js");
+                const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+
+                const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password);
+
+                const userData = { ...formData };
+                delete userData.password;
+
+                await setDoc(doc(db, 'users', userCredential.user.uid), userData);
+
                 alert('Registered!');
                 setView('login');
                 setShowPassword(false);
+            } catch (error) {
+                console.error(error);
+                alert('Registration Failed: ' + error.message);
             }
-            else { alert(res.message); }
         };
 
         return (

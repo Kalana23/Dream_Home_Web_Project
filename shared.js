@@ -1,5 +1,39 @@
 const { useState, useEffect, useRef } = React;
 window.useState = useState;
+
+const firebaseConfig = {
+    apiKey: "AIzaSyCJ6lJTwe3sh0la2ZpXouwS84l-bX5_Oec",
+    authDomain: "dream-home-modern.firebaseapp.com",
+    projectId: "dream-home-modern",
+    storageBucket: "dream-home-modern.firebasestorage.app",
+    messagingSenderId: "660704129742",
+    appId: "1:660704129742:web:4d0e60e57940994201569f",
+    measurementId: "G-WFNWWZLKVZ"
+};
+
+let firebasePromise = null;
+window.loadFirebase = () => {
+    if (firebasePromise) return firebasePromise;
+    firebasePromise = (async () => {
+        try {
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js");
+            const { getAuth } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js");
+            const { getFirestore } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+            const { getStorage } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js");
+
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            const storage = getStorage(app);
+
+            return { auth, db, storage };
+        } catch (error) {
+            console.error("Error loading Firebase:", error);
+            throw error;
+        }
+    })();
+    return firebasePromise;
+};
 window.useEffect = useEffect;
 window.useRef = useRef;
 

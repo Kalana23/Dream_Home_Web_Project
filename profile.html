@@ -39,12 +39,21 @@
                     window.location.href = 'dashboard.html';
                     return;
                 }
-                const res = await api(`getPublicEngineerProfile.php?engineerId=${id}`);
-                if (res && res.engineer) {
-                    setSelectedEng(res.engineer);
-                    const storedRules = localStorage.getItem('rules_' + res.engineer.id);
-                    setChatRules(storedRules ? JSON.parse(storedRules) : []);
-                } else {
+                try {
+                    const { db } = await window.loadFirebase();
+                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+
+                    const userDoc = await getDoc(doc(db, 'users', id));
+                    if (userDoc.exists()) {
+                        const engData = { id: userDoc.id, ...userDoc.data() };
+                        setSelectedEng(engData);
+                        const storedRules = localStorage.getItem('rules_' + id);
+                        setChatRules(storedRules ? JSON.parse(storedRules) : []);
+                    } else {
+                        window.location.href = 'dashboard.html';
+                    }
+                } catch (error) {
+                    console.error("Error loading profile:", error);
                     window.location.href = 'dashboard.html';
                 }
             };
