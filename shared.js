@@ -2,7 +2,7 @@ const { useState, useEffect, useRef } = React;
 window.useState = useState;
 
 const firebaseConfig = {
-    apiKey: "AIzaSyCJ6lJTwe3sh0la2ZpXouwS84l-bX5_Oec",
+    apiKey: "AIzaSyCJ6lJTwe3shOla2ZpXouwS84l-bX5_Oec",
     authDomain: "dream-home-modern.firebaseapp.com",
     projectId: "dream-home-modern",
     storageBucket: "dream-home-modern.firebasestorage.app",
