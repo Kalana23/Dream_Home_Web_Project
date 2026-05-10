@@ -117,14 +117,16 @@
         const addProject = async () => {
             if (!projFile) { alert("Please select an image file."); return; }
             try {
-                const { db, storage } = await window.loadFirebase();
-                const { ref, uploadBytes, getDownloadURL } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js");
+                const { db } = await window.loadFirebase();
                 const { doc, updateDoc, arrayUnion } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
 
-                // Upload image
-                const storageRef = ref(storage, `projects/${user.id}_${Date.now()}_${projFile.name}`);
-                await uploadBytes(storageRef, projFile);
-                const imageUrl = await getDownloadURL(storageRef);
+                // Convert image to Base64
+                const imageUrl = await new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onloadend = () => resolve(reader.result);
+                    reader.onerror = reject;
+                    reader.readAsDataURL(projFile);
+                });
 
                 const newProject = {
                     title: projForm.title,
