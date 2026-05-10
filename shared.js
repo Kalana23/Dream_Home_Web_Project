@@ -16,10 +16,10 @@ window.loadFirebase = () => {
     if (firebasePromise) return firebasePromise;
     firebasePromise = (async () => {
         try {
-            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js");
-            const { getAuth } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js");
-            const { getFirestore } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
-            const { getStorage } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-storage.js");
+            const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js");
+            const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js");
+            const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+            const { getStorage } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-storage.js");
 
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
