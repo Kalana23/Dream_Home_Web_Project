@@ -32,17 +32,19 @@
 
         useEffect(() => {
             const loadHomeData = async () => {
-                const engRes = await api('getEngineers.php');
-                if (engRes && engRes.engineers) {
-                    let allProjs = [];
-                    const previewEngs = engRes.engineers.slice(0, 5); 
-                    for (const eng of previewEngs) {
-                        const profile = await api(`getPublicEngineerProfile.php?engineerId=${eng.id}`);
-                        if (profile && profile.engineer && profile.engineer.projects) {
-                            allProjs = [...allProjs, ...profile.engineer.projects];
-                        }
-                    }
+                try {
+                    const { db } = await window.loadFirebase();
+                    const { collection, getDocs, query, limit } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+
+                    const projectsQ = query(collection(db, 'projects'), limit(6));
+                    const projectsSnapshot = await getDocs(projectsQ);
+                    const allProjs = [];
+                    projectsSnapshot.forEach((doc) => {
+                        allProjs.push({ id: doc.id, ...doc.data() });
+                    });
                     setHomeProjects(allProjs);
+                } catch (error) {
+                    console.error("Error loading home data:", error);
                 }
             };
             loadHomeData();
