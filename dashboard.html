@@ -53,7 +53,7 @@
             const loadData = async () => {
                 try {
                     const { db } = await window.loadFirebase();
-                    const { doc, getDoc, collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+                    const { doc, getDoc, collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
 
                     if (user.type === 'engineer') {
                         setProfileForm({
@@ -62,10 +62,15 @@
                             specialization: user.specialization || '',
                             price: user.price || ''
                         });
-                        const userDoc = await getDoc(doc(db, 'users', user.id));
-                        if (userDoc.exists()) {
-                            setMyProjects(userDoc.data().projects || []);
-                        }
+
+                        const projectsQ = query(collection(db, 'projects'), where('engineerId', '==', user.id));
+                        const projectsSnapshot = await getDocs(projectsQ);
+                        const projects = [];
+                        projectsSnapshot.forEach((doc) => {
+                            projects.push({ id: doc.id, ...doc.data() });
+                        });
+                        setMyProjects(projects);
+
                         setChatRules(JSON.parse(localStorage.getItem('rules_' + user.id) || '[]'));
                     } else {
                         const q = query(collection(db, 'users'), where('type', '==', 'engineer'));
@@ -93,7 +98,7 @@
         const updateProfile = async () => {
             try {
                 const { db } = await window.loadFirebase();
-                const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+                const { doc, updateDoc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
 
                 await updateDoc(doc(db, 'users', user.id), profileForm);
 
@@ -118,7 +123,7 @@
             if (!projFile) { alert("Please select an image file."); return; }
             try {
                 const { db } = await window.loadFirebase();
-                const { doc, updateDoc, arrayUnion } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+                const { collection, addDoc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
 
                 // Convert image to Base64
                 const imageUrl = await new Promise((resolve, reject) => {
@@ -131,13 +136,12 @@
                 const newProject = {
                     title: projForm.title,
                     description: projForm.description,
-                    image_url: imageUrl
+                    image_url: imageUrl,
+                    engineerId: user.id
                 };
 
                 // Update Firestore
-                await updateDoc(doc(db, 'users', user.id), {
-                    projects: arrayUnion(newProject)
-                });
+                await addDoc(collection(db, 'projects'), newProject);
 
                 alert("Successfully Uploaded");
 

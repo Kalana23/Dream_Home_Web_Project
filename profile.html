@@ -41,11 +41,21 @@
                 }
                 try {
                     const { db } = await window.loadFirebase();
-                    const { doc, getDoc } = await import("https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js");
+                    const { doc, getDoc, collection, query, where, getDocs } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
 
                     const userDoc = await getDoc(doc(db, 'users', id));
                     if (userDoc.exists()) {
                         const engData = { id: userDoc.id, ...userDoc.data() };
+
+                        // Load projects
+                        const projectsQ = query(collection(db, 'projects'), where('engineerId', '==', id));
+                        const projectsSnapshot = await getDocs(projectsQ);
+                        const projects = [];
+                        projectsSnapshot.forEach((doc) => {
+                            projects.push({ id: doc.id, ...doc.data() });
+                        });
+                        engData.projects = projects;
+
                         setSelectedEng(engData);
                         const storedRules = localStorage.getItem('rules_' + id);
                         setChatRules(storedRules ? JSON.parse(storedRules) : []);
