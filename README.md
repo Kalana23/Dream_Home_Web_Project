@@ -3,7 +3,7 @@
 Welcome to **Dream Home Modern**, an innovative platform for engineers. This application delivers a seamless, high-performance experience with a sleek, futuristic 3D aesthetic, connecting users with cutting-edge property solutions and engineer profiles.
 
 ## 🚀 Live Demo
-[View the Live Demo on GitHub Pages](#) <!-- Replace # with actual GitHub Pages URL -->
+https://kalana23.github.io/Dream_Home_Web_Project/ <!-- Replace # with actual GitHub Pages URL -->
 
 ## ✨ Key Features
 - **Serverless Architecture:** Fully powered by modern cloud infrastructure (Firebase) without the need for managing backend servers.
