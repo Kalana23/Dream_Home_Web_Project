@@ -17,16 +17,7 @@ https://kalana23.github.io/Dream_Home_Web_Project/ <!-- Replace # with actual Gi
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 ![Firebase](https://img.shields.io/badge/firebase-%23039BE5.svg?style=for-the-badge&logo=firebase)
 
-## 📸 Screenshots
 
-### Home Page
-![Home Page Screenshot](#) <!-- Replace # with actual Home Page screenshot URL -->
-
-### Login / Register
-![Login/Register Screenshot](#) <!-- Replace # with actual Login/Register screenshot URL -->
-
-### Dashboard
-![Dashboard Screenshot](#) <!-- Replace # with actual Dashboard screenshot URL -->
 
 ## 💡 Lessons Learned & Architecture
 
