@@ -26,6 +26,7 @@
     const Button = window.Button;
     const api = window.api;
     const VIDEO_URL = window.VIDEO_URL;
+    const ChatbotWidget = window.ChatbotWidget;
 
     function App() {
         const [homeProjects, setHomeProjects] = useState([]);
@@ -34,6 +35,14 @@
         const [searchPropertyType, setSearchPropertyType] = useState('');
         const [searchMaxPrice, setSearchMaxPrice] = useState('');
         const [isAnimating, setIsAnimating] = useState(true);
+        const [showChat, setShowChat] = useState(false);
+
+        const globalChatRules = [
+            { keyword: 'price', answer: 'The price ranges vary depending on the engineer and the scope of the project. Generally, they range from $3000 to $5000+.' },
+            { keyword: 'cost', answer: 'The cost depends on the specific requirements. Please check our engineer profiles for standard pricing or contact them directly.' },
+            { keyword: 'location', answer: 'Our engineers are available in various locations including Colombo, Kandy, and Galle. Please refer to the search filter for a full list.' },
+            { keyword: 'area', answer: 'We cover major areas such as Colombo, Kandy, and Galle.' }
+        ];
 
         useEffect(() => {
             const loadHomeData = async () => {
@@ -175,6 +184,15 @@
                         </div>
                     </div>
                 </div>
+
+                <button
+                    onClick={() => setShowChat(true)}
+                    className="fixed bottom-6 right-6 w-16 h-16 rounded-full bg-blue-600/80 backdrop-blur-md border border-blue-400/30 text-white flex items-center justify-center btn-3d shadow-2xl z-50 animate-fade-in-up"
+                >
+                    <Icon path={icons.chat}/>
+                </button>
+
+                {showChat && <ChatbotWidget engineerName="Dream Home Platform" rules={globalChatRules} onClose={() => setShowChat(false)} />}
             </div>
         );
     }
